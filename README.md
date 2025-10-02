@@ -61,5 +61,3 @@ Notes
 • All maps return readable names for domain/codomain coordinates.
 
 • Jacobian evaluation samples random integer points and avoids poles.
-
-////////////////////////////////////////////////////////////////////////////////
