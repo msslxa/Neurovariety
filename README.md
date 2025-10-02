@@ -1,5 +1,5 @@
-# Neurovariety
-Symbolic neuro-variety toolkit (Magma)
+# Neurovarieties
+Symbolic neurovarieites toolkit (Magma)
 
 
 NeuroVarieties.m – symbolic neuro-variety toolkit (Magma)
