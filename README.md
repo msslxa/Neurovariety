@@ -1,15 +1,15 @@
 # Neurovariety
 Symbolic neuro-variety toolkit (Magma)
 
-////////////////////////////////////////////////////////////////////////////////
+
 // NeuroVarieties.m – symbolic neuro-variety toolkit (Magma)
-//
+
 // Overview
 //   A compact library to build symbolic feed-forward networks, extract the
 //   coefficient map, impose gauges, and study the dimension of the resulting
 //   “neuro-varieties” via Jacobian-rank sampling. Includes a small search
 //   harness and a composite-Veronese + projection constructor.
-//
+
 // Main entry points
 //   • BuildNetworkDataNamed(n,d)
 //   • ParametrizationNamed(n,d)
@@ -18,7 +18,7 @@ Symbolic neuro-variety toolkit (Magma)
 //   • NeuroVarietyStats(n,d : tries := 10)
 //   • ExhaustiveSmallDefectTest  (top-level blocks at the end of the file)
 //   • Composite-Veronese and Projection Construction (final section)
-//
+
 // Conventions
 //   • n = [n0,…,nL]      layer widths (inputs n0, outputs nL)
 //   • d = [d1,…,d_{L-1}] coordinate-wise power activations x ↦ x^{di}
