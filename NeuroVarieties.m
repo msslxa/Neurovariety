@@ -834,3 +834,104 @@ print "  (kernel dimension = ", Dimension(Domain(projMap)) -
 
 // 6.  Return the two maps 
 nuMap, projMap;
+
+///////////////////////////////////////////////////////////////////////////
+// VerifyThmMainHypotheses (function version)
+// Checks (i)–(iii) of Theorem th:main for (n,d).
+// Returns a record with fields: ok, basic, cond1, cond2, cond3, and diagnostics.
+///////////////////////////////////////////////////////////////////////////
+function VerifyThmMainHypotheses(n , d)
+    RF := recformat<
+        ok        : BoolElt,
+        basic     : BoolElt,   // length checks, L>=2, n_L>=2
+        cond1     : BoolElt,   // (i) room inequalities
+        cond2     : BoolElt,   // (ii) AH non-defectiveness at last level
+        cond3     : BoolElt,   // (iii) expdim((...,1)) = parameter count
+        L         : RngIntElt,
+        n0        : RngIntElt,
+        nLm2      : RngIntElt, // n_{L-2}
+        nLm1      : RngIntElt, // n_{L-1}
+        nL        : RngIntElt, // n_{L}
+        dLm1      : RngIntElt, // d_{L-1}
+        k_n1      : RngIntElt, // parameter count for (n0,...,n_{L-1},1)
+        N_n1      : RngIntElt, // ambient affine dim for (..,1)
+        h_n1      : RngIntElt, // improved cap term
+        exp_n1    : RngIntElt  // expected dim for (..,1)
+    >;
+
+    R := rec< RF | ok := false, basic := false, cond1 := false, cond2 := false, cond3 := false,
+                    L := 0, n0 := 0, nLm2 := 0, nLm1 := 0, nL := 0, dLm1 := 0,
+                    k_n1 := 0, N_n1 := 0, h_n1 := 0, exp_n1 := 0 >;
+
+    // --- basic shape checks ---
+    if #n lt 3 then return R; end if;
+    L := #n - 1;
+    if #d ne L-1 then return R; end if;
+    if L lt 2 or n[#n] lt 2 then return R; end if;
+
+    R`L  := L;
+    R`n0 := n[1];
+    R`nL := n[#n];
+
+    // (i) room inequalities: n_{i-1}+n_i-1 < C(n_{i-1}-1 + d_i, n_{i-1}-1), for i=1..L-1
+    cond1 := true;
+    for i in [1..L-1] do
+        lhs := n[i] + n[i+1] - 1;
+        rhs := Binomial(n[i]-1 + d[i], n[i]-1);
+        if not (lhs lt rhs) then cond1 := false; break; end if;
+    end for;
+
+    // (ii) Non-defectiveness for V^{n_{L-2}-1}_{d_{L-1}} at r = n_{L-1}
+    // Alexander–Hirschowitz exceptions:
+    //  - d=2, vars>=3, and 2 <= r <= vars-1
+    //  - (vars,d,r) in {(3,4,5), (4,4,9), (5,3,8)}
+    vars := n[L-1];    // n_{L-2}
+    deg  := d[L-1];    // d_{L-1}
+    r    := n[L];      // n_{L-1}
+    R`nLm2 := vars;  R`nLm1 := r;  R`dLm1 := deg;
+
+    isExc := false;
+    if deg eq 2 and vars ge 3 and 2 le r and r le vars-1 then
+        isExc := true;
+    end if;
+    if <vars,deg,r> eq <3,4,5> or <vars,deg,r> eq <4,4,9> or <vars,deg,r> eq <5,3,8> then
+        isExc := true;
+    end if;
+    cond2 := not isExc;
+
+    // (iii) For (n0,...,n_{L-1},1), improved expected dimension equals parameter count
+    ExpectedDim := function(nlist, dlist)
+        local LL, k, dTot, N, T, h, i;
+        LL := #nlist - 1;
+        k := &+[ nlist[i+1]*(nlist[i]-1) : i in [1..LL] ];
+        dTot := 1; for i in [1..#dlist] do dTot *:= dlist[i]; end for;
+        N := nlist[#nlist]*Binomial(nlist[1]-1 + dTot, nlist[1]-1) - nlist[#nlist];
+        T := Binomial( nlist[LL-1] - 1 + dlist[LL-1], nlist[LL-1]-1 ) - 1; // last Veronese ambient dim
+        if LL ge 2 then
+            h := (&+[ nlist[i+1]*(nlist[i]-1) : i in [1..LL-2] ]) + T;
+        else
+            h := T;
+        end if;
+        return Minimum(Minimum(k,N), h), k, N, h;
+    end function;
+
+    n1 := n;  n1[#n1] := 1;  // replace last width by 1
+    exp_n1, k_n1, N_n1, h_n1 := ExpectedDim(n1, d);
+    cond3 := (exp_n1 eq k_n1);
+
+    // Fill and return
+    R`basic   := true;
+    R`cond1   := cond1;
+    R`cond2   := cond2;
+    R`cond3   := cond3;
+    R`k_n1    := k_n1;
+    R`N_n1    := N_n1;
+    R`h_n1    := h_n1;
+    R`exp_n1  := exp_n1;
+    R`ok      := R`basic and R`cond1 and R`cond2 and R`cond3;
+    return R;
+end function;
+
+///////////////////////////////////////////////////////////////////////////
+R := VerifyThmMainHypotheses([3,4,5,2], [3,5]);
+print R`ok, R`cond1, R`cond2, R`cond3;
